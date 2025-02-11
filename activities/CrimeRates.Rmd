@@ -6,30 +6,39 @@ Follow along with the demo to learn how to calculate crime rates using R and the
 
 ### Task 1: Load the tidyverse and install and load janitor
 
+```{r}
+library(tidyverse)
+install.packages("janitor")
+library(janitor)
+```
 
+### Task 2: Load the crime dataset from <https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_annual_crime.csv>
 
-### Task 2: Load the crime dataset from https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_annual_crime.csv
-
-
+```{r}
+crimes <- read_csv("https://raw.githubusercontent.com/dwillis/jour405/refs/heads/main/data/md_annual_crime.csv") |> clean_names()
+```
 
 ### Task 3: Use janitor to clean up the column names
 
-
+previous code block
 
 ### Task 4: Calculate the total crime rate for each year (picking our unit!)
 
-
+```{r}
+crimes |> mutate(total_rate = grand_total/population * 10000)
+```
 
 ### Task 5: Calculate the violent and property crime rates for each year (same unit)
 
+```{r}
+crimes_with_rates <- crimes |> mutate(violent_rate = violent_crime_total/population * 10000, property_rate = property_crime_total/population * 10000)
+```
 
 
 ### Task 6: Describe our results
 
 Write a few sentences about what you found in the data. What years had the highest crime rates? What years had the lowest crime rates? Does the pattern match your expectations?
 
-
-
+After examining the data, I found that 1990s had by far the highest crimes rates of any time period in Maryland, especially when looking at violent crime. The top seven years with the highest violent crime rates in Maryland all took place during the 1990s. On the low end, the 2010s were the safest decade Maryland has seen in a long time. These patterns did not match my expectations because I assumed that crimes rates would have been very high in the late 2010s and 2020 because all the media talked about was how dangerous our cities were becoming. It was surpising to me to see that the data actually goes against those statements.
 
 When you are done, save your work, switch to GitHub Desktop, then add, commit and push your changes to GitHub and submit the URL of the notebook in ELMS.
-

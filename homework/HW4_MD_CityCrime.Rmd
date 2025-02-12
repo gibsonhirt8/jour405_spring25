@@ -62,3 +62,16 @@ In both 2019 and 2020, Ocean City, MD, ranked second in violent crime rate, only
 ### Task 9: Save Your Work and Put it on GitHub
 
 Save this notebook, then commit it to your local repository. Push the changes to your GitHub repository and submit the URL for this file in ELMS.
+
+### Task 10: Percentiles
+
+```{r}
+md_cities_percentiles <- md_cities_rates |> mutate(percentile = ntile(violent_rate_2020,100))
+```
+Not including Princess Anne, MD, which is at exactly the 90th percentile, there are 10 cities in Maryland above the 90th percentile in 2020 violent crime rate.
+
+```{r}
+md_cities_percentiles |> summarize(violent_IQR = IQR(violent_rate_2020))
+```
+While certainly being informative and a helpful statistic, the IQR doesn't change my mind about the best story idea. Instead it actually reinforces my belief that the Ocean City data is the most important. If I were to do the outlier test, I would find that violent crime in Ocean City qualified as one. This proves that crimes are significantly higher than most places in Maryland and definitely are something that residents need to pay attention to.
+

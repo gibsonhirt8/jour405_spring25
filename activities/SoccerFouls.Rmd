@@ -36,7 +36,8 @@ matches |> summarize(correlation = cor(fouls, goal_dif, method="pearson"))
 ```{r}
 matches |> 
   ggplot() +
-  geom_point(aes(x=goal_dif, y=fouls))
+  geom_point(aes(x=goal_dif, y=fouls)) +
+  geom_smooth(aes(x=goal_dif, y=fouls), method = "lm")
 ```
 
 ### Task 6: Describe the results of both the correlation calculation and the scatterplot.

@@ -1,0 +1,12 @@
+```{r}
+library(tidyverse)
+tj_pitchers <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRza4COxnPzAC9B4iLHSftyQLGLauOseQDMyTZe1Rmv14tBvApecwU8JnCBJ-uGqiXqorOtIeThPoVK/pub?output=csv")
+```
+I converted the spreadsheet with all players who have had TJ surgery to a csv file and successfully loaded it into R. I will use this sheet to select my random sample of MLB pitchers who have had surgery from 2020 to 2024.
+
+```{r}
+all_pitchers <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTH6AIJrKc_Hzu4HbBbNwn54krNj_7b8Pmh-wTAM8AjGSoY6bphzb_KEjN_U7QKZj8HKoUwJ778yT9w/pub?output=csv")
+pitchers_no_tj <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRiEXf3DkWF1JMN1XLNW0UaPR3pKiNVmnQFfFP_RHdihRQU9WVRxp0Uf_a7oxWBrExJYmvDNvCqvE5w/pub?output=csv")
+
+```
+I also converted a list of all MLB players who have pitched in a game since 2020 (excluding position players) and converted that to a csv file as well. This file also includes the average velocity of each pitch for every pitcher. I kept the velocity from the most recent season they have pitched in and removed metrics from previous season if they pitched in multiple. The all_pitchers dataframe includes all pitchers who have pitched within the above time frame, including ones who have had surgery so that way I can have their pitch speed data. The pitchers_no_tj dataframe does not include any pitchers who have had surgery so that I can take my random sample of pitchers without surgery from that data. When it comes times to analyze the pitch speed, I will most likely only use velocity from 4-seam fastballs since that is by far the most common pitch thrown in baseball and typically has the highest velocity as well. I don't think there's anything missing from my data that I know of. I had to collect a lot of this data myself and format it in google sheets before converting it to csv files.

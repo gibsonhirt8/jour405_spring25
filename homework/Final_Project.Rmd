@@ -1,6 +1,6 @@
 ```{r}
 library(tidyverse)
-tj_pitchers <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRza4COxnPzAC9B4iLHSftyQLGLauOseQDMyTZe1Rmv14tBvApecwU8JnCBJ-uGqiXqorOtIeThPoVK/pub?output=csv")
+tj_pitchers <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRza4COxnPzAC9B4iLHSftyQLGLauOseQDMyTZe1Rmv14tBvApecwU8JnCBJ-uGqiXqorOtIeThPoVK/pub?gid=0&single=true&output=csv")
 ```
 I converted the spreadsheet with all players who have had TJ surgery to a csv file and successfully loaded it into R. I will use this sheet to select my random sample of MLB pitchers who have had surgery from 2020 to 2024.
 
@@ -10,3 +10,14 @@ pitchers_no_tj <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRiE
 
 ```
 I also converted a list of all MLB players who have pitched in a game since 2020 (excluding position players) and converted that to a csv file as well. This file also includes the average velocity of each pitch for every pitcher. I kept the velocity from the most recent season they have pitched in and removed metrics from previous season if they pitched in multiple. The all_pitchers dataframe includes all pitchers who have pitched within the above time frame, including ones who have had surgery so that way I can have their pitch speed data. The pitchers_no_tj dataframe does not include any pitchers who have had surgery so that I can take my random sample of pitchers without surgery from that data. When it comes times to analyze the pitch speed, I will most likely only use velocity from 4-seam fastballs since that is by far the most common pitch thrown in baseball and typically has the highest velocity as well. I don't think there's anything missing from my data that I know of. I had to collect a lot of this data myself and format it in google sheets before converting it to csv files.
+
+```{r}
+set.seed(5) # Setting seed for reproductability
+  sample_no_tj <- pitchers_no_tj |> 
+    sample_n(25)
+  
+set.seed(5) # Setting seed for reproductability
+  sample_tj <- tj_pitchers |> 
+    sample_n(25)
+```
+

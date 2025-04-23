@@ -1,23 +1,58 @@
+**NOTE: I mistakenly deleted all of notes and writing from the previous project assignment. I did completely change and reformat most of my data, but I will make sure not to delete anything from here on out.**
+
+4/22: Since my hypothesis is that a higher fastball velocity does NOT increase the likelihood of a pitcher needing Tommy John surgery, I know that I will need to choose statistical analysis tests that take multiple means into account at once. I know that a two-sample t-test is a common way to do this since it can compare two separate samples and whether or not they differ from each other. In my case, a two-sample t-test will test to see if there is a significant difference between pitchers who did and pitchers who did not have surgery. It wouldn't work for me to use an ANOVA test because that test is typically used when there are three or more sample groups and in my case I only have two (TJ vs no TJ). I know the test-t will be a good test but not sure if there are any other statistical analysis's I could use.
 ```{r}
 library(tidyverse)
-tj_pitchers <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRza4COxnPzAC9B4iLHSftyQLGLauOseQDMyTZe1Rmv14tBvApecwU8JnCBJ-uGqiXqorOtIeThPoVK/pub?gid=0&single=true&output=csv")
 ```
-I converted the spreadsheet with all players who have had TJ surgery to a csv file and successfully loaded it into R. I will use this sheet to select my random sample of MLB pitchers who have had surgery from 2020 to 2024.
 
 ```{r}
-all_pitchers <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTH6AIJrKc_Hzu4HbBbNwn54krNj_7b8Pmh-wTAM8AjGSoY6bphzb_KEjN_U7QKZj8HKoUwJ778yT9w/pub?output=csv")
-pitchers_no_tj <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRiEXf3DkWF1JMN1XLNW0UaPR3pKiNVmnQFfFP_RHdihRQU9WVRxp0Uf_a7oxWBrExJYmvDNvCqvE5w/pub?output=csv")
+tj_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRza4COxnPzAC9B4iLHSftyQLGLauOseQDMyTZe1Rmv14tBvApecwU8JnCBJ-uGqiXqorOtIeThPoVK/pub?gid=0&single=true&output=csv")
+
+no_tj_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRiEXf3DkWF1JMN1XLNW0UaPR3pKiNVmnQFfFP_RHdihRQU9WVRxp0Uf_a7oxWBrExJYmvDNvCqvE5w/pub?gid=0&single=true&output=csv")
+
+velo_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTH6AIJrKc_Hzu4HbBbNwn54krNj_7b8Pmh-wTAM8AjGSoY6bphzb_KEjN_U7QKZj8HKoUwJ778yT9w/pub?gid=0&single=true&output=csv")
 
 ```
-I also converted a list of all MLB players who have pitched in a game since 2020 (excluding position players) and converted that to a csv file as well. This file also includes the average velocity of each pitch for every pitcher. I kept the velocity from the most recent season they have pitched in and removed metrics from previous season if they pitched in multiple. The all_pitchers dataframe includes all pitchers who have pitched within the above time frame, including ones who have had surgery so that way I can have their pitch speed data. The pitchers_no_tj dataframe does not include any pitchers who have had surgery so that I can take my random sample of pitchers without surgery from that data. When it comes times to analyze the pitch speed, I will most likely only use velocity from 4-seam fastballs since that is by far the most common pitch thrown in baseball and typically has the highest velocity as well. I don't think there's anything missing from my data that I know of. I had to collect a lot of this data myself and format it in google sheets before converting it to csv files.
 
 ```{r}
-set.seed(5) # Setting seed for reproductability
-  sample_no_tj <- pitchers_no_tj |> 
-    sample_n(25)
-  
-set.seed(5) # Setting seed for reproductability
-  sample_tj <- tj_pitchers |> 
-    sample_n(25)
-```
+tj_data <- tj_data |> 
+  mutate(had_TJ = 1)
 
+no_tj_data <- no_tj_data |> 
+  mutate(had_TJ = 0)
+```
+I used AI to give me recommendations for how to best clean up and combine my data so that I didn't have to have three separate files with data. I used the mutate functions to add a 0 to all the pitchers who have not had TJ and a 1 to everyone who has.
+
+```{r}
+all_pitchers <- bind_rows(tj_data, no_tj_data)
+```
+I deleted all of the unnecessary info from the google sheets and then looked up the best way to combine data within R studio. Using the bind_rows function, I combined the lists of pitcher who have and have not had surgery into one data frame. Since I already used the mutate function, each pitcher now has a 0 or 1 next to their name depending on if they had surgery.
+
+```{r}
+velo_for_all <- all_pitchers |> 
+  left_join(velo_data |>  select(Name, ff_avg_speed), by = "Name")
+```
+With my newly combined dataframe, I also added a column for every pitcher that pulled their pitch speed from my original google sheet that had the velo for every pitcher. For pitchers that have N/A listed for their velo, I will manually enter that data if they are selected when I use the set.seed function to get my random sample. I think that I forgot remove the qualifier for number of innings pitched when originally pulling my data from baseballsavant, meaning that some of the pitchers who have had surgery didn't pitch enough innings before getting hurt so their data wasn't listed on the velocity table.
+
+```{r}
+# Histogram for TJ pitchers
+ggplot(merged_data |>  filter(had_TJ == 1), aes(x = ff_avg_speed)) +
+  geom_histogram(binwidth = 1, fill = "#D55E00", color = "white", alpha = 0.85) +
+  labs(
+    title = "Fastball Velocity: Tommy John Pitchers",
+    x = "Average Fastball Velocity (mph)",
+    y = "Number of Pitchers"
+  ) +
+  theme_minimal()
+
+# Histogram for Non-TJ pitchers
+ggplot(merged_data |>  filter(had_TJ == 0), aes(x = ff_avg_speed)) +
+  geom_histogram(binwidth = 1, fill = "#009E73", color = "white", alpha = 0.85) +
+  labs(
+    title = "Fastball Velocity: Non-Tommy John Pitchers",
+    x = "Average Fastball Velocity (mph)",
+    y = "Number of Pitchers"
+  )
+
+```
+I created a histogram for each sample group that I have just to help me better visualize the data.

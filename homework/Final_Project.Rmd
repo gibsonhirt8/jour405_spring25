@@ -114,7 +114,7 @@ model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = velo_for_all)
 summary (model)
 ```
 
-### Task 12: Logisitical regression with random samples
+### Task 12: Logistical regression with random samples
 ```{r}
 sampled_model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = sampled_data)
 

@@ -1,10 +1,23 @@
-**NOTE: I mistakenly deleted all of notes and writing from the previous project assignment. I did completely change and reformat most of my data, but I will make sure not to delete anything from here on out.**
+Gibson Hirt
 
-4/22: Since my hypothesis is that a higher fastball velocity does NOT increase the likelihood of a pitcher needing Tommy John surgery, I know that I will need to choose statistical analysis tests that take multiple means into account at once. I know that a two-sample t-test is a common way to do this since it can compare two separate samples and whether or not they differ from each other. In my case, a two-sample t-test will test to see if there is a significant difference between pitchers who did and pitchers who did not have surgery. It wouldn't work for me to use an ANOVA test because that test is typically used when there are three or more sample groups and in my case I only have two (TJ vs no TJ). I know the test-t will be a good test but not sure if there are any other statistical analysis's I could use.
+### 4/29
+This week, I ran two types of statistical analysis tests -- a t-test and a logistical regression test like you recommended. I also followed your advice of running these test both for the entire populations and with random samples meaning that in total, I ran four separate statistical analyses. Starting with task 7 (line 71) I created random samples for both sets of data -- players who have and players who have not had Tommy John surgery. Line 84 is all of my notes from the random sample process and what I am doing to deal with pitchers who have N/A listed as their average pitch speed. I successfully ran two t-tests and was surprised to find drastically different results between the two. My test of the random samples resulted in a p-value of 0.9453, implying that the correlation between fastball velocity and surgery is weak and I should not reject my null hypothesis. Based on this test, I assumed that there is not a significant difference between the fastball velocity of pitchers who have had surgery vs pitchers who have not had surgery. However, when I ran the t-test with the full populations, I observed a p-value of 0.006698, allowing me to reject my null hypothesis and conclude that there is a significant difference in pitch speed from pitchers who have had surgery to those who have not.
+
+I then ran both logistical regression tests for my data and observed similarly split results. The test using full populations resulted in a low p-value and positive ff_avg_speed coefficient. The positive coefficient indicates that as velocity increases, the likelihood of surgery does as well. The low p-value indicates that there is strong evidence to back up this claim. However, the test using the random sample did not come to the same conclusions. There was a negative ff_avg_speed coefficient, meaning that the data actually suggests that higher velocity actually decreases the likelihood of surgery. However, the p-value is extremely high at 0.943, meaning that there is not significant evidence that fastball velocity is associated with surgery within this sample.
+
+
+### 4/22
+Since my hypothesis is that a higher fastball velocity does NOT increase the likelihood of a pitcher needing Tommy John surgery, I know that I will need to choose statistical analysis tests that take multiple means into account at once. I know that a two-sample t-test is a common way to do this since it can compare two separate samples and whether or not they differ from each other. In my case, a two-sample t-test will test to see if there is a significant difference between pitchers who did and pitchers who did not have surgery. It wouldn't work for me to use an ANOVA test because that test is typically used when there are three or more sample groups and in my case I only have two (TJ vs no TJ). I know the test-t will be a good test but not sure if there are any other statistical analysis's I could use.
+
+### Task 1: Load the tidyverse and print hypothesis
 ```{r}
 library(tidyverse)
+
+null_hypothesis <- "A higher velocity fastball does not make a MLB pitcher more likely to need Tommy John surgery."
+alternate_hypothesis <- "A higher velocity fastball makes a MLB pitcher more likely to need Tommy John surgery."
 ```
 
+### Task 2: Load data
 ```{r}
 tj_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRza4COxnPzAC9B4iLHSftyQLGLauOseQDMyTZe1Rmv14tBvApecwU8JnCBJ-uGqiXqorOtIeThPoVK/pub?gid=0&single=true&output=csv")
 
@@ -13,7 +26,7 @@ no_tj_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRiEXf3D
 velo_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTH6AIJrKc_Hzu4HbBbNwn54krNj_7b8Pmh-wTAM8AjGSoY6bphzb_KEjN_U7QKZj8HKoUwJ778yT9w/pub?gid=0&single=true&output=csv")
 
 ```
-
+### Task 3: Add column to differentiate data
 ```{r}
 tj_data <- tj_data |> 
   mutate(had_TJ = 1)
@@ -23,20 +36,23 @@ no_tj_data <- no_tj_data |>
 ```
 I used AI to give me recommendations for how to best clean up and combine my data so that I didn't have to have three separate files with data. I used the mutate functions to add a 0 to all the pitchers who have not had TJ and a 1 to everyone who has.
 
+### Task 4: Combine data
 ```{r}
 all_pitchers <- bind_rows(tj_data, no_tj_data)
 ```
 I deleted all of the unnecessary info from the google sheets and then looked up the best way to combine data within R studio. Using the bind_rows function, I combined the lists of pitcher who have and have not had surgery into one data frame. Since I already used the mutate function, each pitcher now has a 0 or 1 next to their name depending on if they had surgery.
 
+### Task 5: Add pitch speed
 ```{r}
 velo_for_all <- all_pitchers |> 
   left_join(velo_data |>  select(Name, ff_avg_speed), by = "Name")
 ```
 With my newly combined dataframe, I also added a column for every pitcher that pulled their pitch speed from my original google sheet that had the velo for every pitcher. For pitchers that have N/A listed for their velo, I will manually enter that data if they are selected when I use the set.seed function to get my random sample. I think that I forgot remove the qualifier for number of innings pitched when originally pulling my data from baseballsavant, meaning that some of the pitchers who have had surgery didn't pitch enough innings before getting hurt so their data wasn't listed on the velocity table.
 
+### Task 6: Create histograms
 ```{r}
 # Histogram for TJ pitchers
-ggplot(merged_data |>  filter(had_TJ == 1), aes(x = ff_avg_speed)) +
+ggplot(velo_for_all |>  filter(had_TJ == 1), aes(x = ff_avg_speed)) +
   geom_histogram(binwidth = 1, fill = "#D55E00", color = "white", alpha = 0.85) +
   labs(
     title = "Fastball Velocity: Tommy John Pitchers",
@@ -46,7 +62,7 @@ ggplot(merged_data |>  filter(had_TJ == 1), aes(x = ff_avg_speed)) +
   theme_minimal()
 
 # Histogram for Non-TJ pitchers
-ggplot(merged_data |>  filter(had_TJ == 0), aes(x = ff_avg_speed)) +
+ggplot(velo_for_all |>  filter(had_TJ == 0), aes(x = ff_avg_speed)) +
   geom_histogram(binwidth = 1, fill = "#009E73", color = "white", alpha = 0.85) +
   labs(
     title = "Fastball Velocity: Non-Tommy John Pitchers",
@@ -56,3 +72,52 @@ ggplot(merged_data |>  filter(had_TJ == 0), aes(x = ff_avg_speed)) +
 
 ```
 I created a histogram for each sample group that I have just to help me better visualize the data.
+
+### Task 7: Create random samples
+```{r}
+set.seed(8)
+
+tj_pitchers <- velo_for_all |> filter(had_TJ == 1)
+no_tj_pitchers <- velo_for_all |> filter(had_TJ == 0)
+
+# I made my random sample sizes approximately 10% of the full population size
+tj_sample <- tj_pitchers |> sample_n(15)
+no_tj_sample <- no_tj_pitchers |> sample_n(55)
+
+```
+
+Above are my the two random samples I will be using in one of my t-tests to test if there is a significant difference in pitch velocity between pitchers who have had TJ and pitchers who have not. I chose 8 at random for my set.seed and manually add the velocities for all pitchers who showed up as N/A in each sample. I realize now that pitchers were coming up as N/A because I forgot to turn off the setting to only show qualified pitchers when I was taking all of the pitch speed data from online. When I run the same t-test but for the entire populations, I am going to add a line of code that ignores any pitcher without velocity data so that way I don't have to completely re-import all of my data.
+
+### Task 8: Combine random samples
+```{r}
+sampled_data <- bind_rows(tj_sample, no_tj_sample)
+```
+
+I combined my two sets of sampled data so that way I can run the t-test and use the 0 or 1 in the had_tj column to make sure the test is run properly.
+
+### Task 9: T-test with random samples
+```{r}
+t_test_sampled <- t.test(ff_avg_speed ~ had_TJ, data = sampled_data)
+
+print(t_test_sampled)
+```
+### Task 10: T-test with full populations
+```{r}
+t_test_full <- t.test(ff_avg_speed ~ had_TJ, data = velo_for_all, na.rm = TRUE)
+
+print(t_test_full)
+```
+### Task 11: Logistical regression with full populations
+```{r}
+model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = velo_for_all)
+
+summary (model)
+```
+
+### Task 12: Logisitical regression with random samples
+```{r}
+sampled_model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = sampled_data)
+
+summary(sampled_model)
+```
+

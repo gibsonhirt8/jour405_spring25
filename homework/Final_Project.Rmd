@@ -131,6 +131,17 @@ summary(sampled_model)
 ```
 This logistical regression produced a p-value of 0.943, well above the alpha level of 0.05 where I could confidently reject the null hypothesis. Additionally, the ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, there is actually a slight decrease in a pitchers odds of needing surgery. As a result, based on this random sample, I can say that there is not a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does not make a pitcher more likely to need surgery.
 
-### Final Analysis
+### Regression Curve
+I am creating a regression curve that help me visualize the predicted probability of having surgery based on how fast a pitcher throws. I did look up the proper way to format the code to create this graph.
+```{r}
+velo_for_all$predicted_prob <- predict(model, newdata = velo_for_all, type = "response")
+ggplot(velo_for_all, aes(x = ff_avg_speed, y = predicted_prob)) +
+  geom_line(color = "red") +
+  labs(x = "Fastball Velocity (mph)", y = "Predicted Probability of Surgery") +
+  theme_minimal()
+```
+
+
+### Final Analysis/Thoughts
 
 ### Story Pitch

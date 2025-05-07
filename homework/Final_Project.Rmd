@@ -140,6 +140,8 @@ ggplot(velo_for_all, aes(x = ff_avg_speed, y = predicted_prob)) +
   labs(x = "Fastball Velocity (mph)", y = "Predicted Probability of Surgery") +
   theme_minimal()
 ```
+This regressive curve shows the results of my logistical regression analysis. As pitchers continue to throw faster, their chances of needing Tommy John surgery exponentially increase.
+
 ### Story Pitch
 Headline: Data shows MLB pitchers who throw harder are more likely to need Tommy John surgery
 

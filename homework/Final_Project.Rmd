@@ -55,7 +55,7 @@ With my newly combined dataframe, I also added a column for every pitcher that p
 ggplot(velo_for_all |>  filter(had_TJ == 1), aes(x = ff_avg_speed)) +
   geom_histogram(binwidth = 1, fill = "#D55E00", color = "white", alpha = 0.85) +
   labs(
-    title = "Fastball Velocity: Tommy John Pitchers",
+    title = "Fastball Velocity: Tommy John Pitchers since 2020",
     x = "Average Fastball Velocity (mph)",
     y = "Number of Pitchers"
   ) +
@@ -65,13 +65,13 @@ ggplot(velo_for_all |>  filter(had_TJ == 1), aes(x = ff_avg_speed)) +
 ggplot(velo_for_all |>  filter(had_TJ == 0), aes(x = ff_avg_speed)) +
   geom_histogram(binwidth = 1, fill = "#009E73", color = "white", alpha = 0.85) +
   labs(
-    title = "Fastball Velocity: Non-Tommy John Pitchers",
+    title = "Fastball Velocity: Non-Tommy John Pitchers since 2020",
     x = "Average Fastball Velocity (mph)",
     y = "Number of Pitchers"
   )
 
 ```
-I created a histogram for each sample group that I have just to help me better visualize the data.
+I created a histogram for each sample group that I have just to help me better visualize the data. Non-surgery pitchers have a normal, unimodal distribution with almost no outliers. Surgery pitchers have a bimodal distibution with more spread than the other dataset.
 
 ### Task 7: Create random samples
 ```{r}
@@ -96,28 +96,41 @@ sampled_data <- bind_rows(tj_sample, no_tj_sample)
 I combined my two sets of sampled data so that way I can run the t-test and use the 0 or 1 in the had_tj column to make sure the test is run properly.
 
 ### Task 9: T-test with random samples
+I am running a t-test with random samples to give me an analysis of the data that is not solely based on the full populations.
 ```{r}
 t_test_sampled <- t.test(ff_avg_speed ~ had_TJ, data = sampled_data)
 
 print(t_test_sampled)
 ```
+This t-test produced a p-value of 0.9453, well above the alpha level of 0.05 where I could confidently reject the null hypothesis. As a result, based on this random sample, I can say that there is not a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does not make a pitcher more likely to need surgery.
+
 ### Task 10: T-test with full populations
+I am running the same exact two sample t-test as above, just with the full populations for both datasets.
 ```{r}
 t_test_full <- t.test(ff_avg_speed ~ had_TJ, data = velo_for_all, na.rm = TRUE)
 
 print(t_test_full)
 ```
+This t-test produced a p-value of 0.006, well below the alpha level of 0.05, meaning I can confidently reject the null hypothesis. As a result, based on this test, I can say that there is a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does make a pitcher more likely to need surgery.
+
 ### Task 11: Logistical regression with full populations
+I am running a logisitical regression with the full populations for both datasets.
 ```{r}
 model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = velo_for_all)
 
 summary (model)
 ```
+This logistical regression produced a p-value of 0.0090, statistically significant at the 99% confidence level, not just 95%. The ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, the log-odds of surgery increase by 0.123 or approximately 13.1%. 
 
 ### Task 12: Logistical regression with random samples
+I am running the same exact logisitical regression as above, just with random samples for both datasets.
 ```{r}
 sampled_model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = sampled_data)
 
 summary(sampled_model)
 ```
+This logistical regression produced a p-value of 0.943, well above the alpha level of 0.05 where I could confidently reject the null hypothesis. Additionally, the ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, there is actually a slight decrease in a pitchers odds of needing surgery. As a result, based on this random sample, I can say that there is not a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does not make a pitcher more likely to need surgery.
 
+### Final Analysis
+
+### Story Pitch

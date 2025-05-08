@@ -142,6 +142,25 @@ ggplot(velo_for_all, aes(x = ff_avg_speed, y = predicted_prob)) +
 ```
 This regressive curve shows the results of my logistical regression analysis. As pitchers continue to throw faster, their chances of needing Tommy John surgery exponentially increase.
 
+### Multiple Regression
+```{r}
+other_stats <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQMyEK1XqNnixMrwEwIOKtOuSLeWxebbkxTPGFK3z3i-6CdGTuqTaWMTejJZZEPTKiuXE_jKAgj_yQW/pub?gid=0&single=true&output=csv")
+```
+
+```{r}
+velo_with_stats <- velo_for_all |>
+  left_join(other_stats, by = "Name")
+```
+
+```{r}
+multi_model <- glm(
+  had_TJ ~ IP + FB_pct + CB_pct + SL_pct,
+  data = velo_with_stats,
+  family = binomial)
+
+summary(multi_model)
+```
+
 ### Story Pitch
 Headline: Data shows MLB pitchers who throw harder are more likely to need Tommy John surgery
 

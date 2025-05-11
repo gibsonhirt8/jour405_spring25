@@ -1,5 +1,8 @@
 Gibson Hirt
 
+### 5/10 
+I removed the random samples as recommended.
+
 ### 4/29
 This week, I ran two types of statistical analysis tests -- a t-test and a logistical regression test like you recommended. I also followed your advice of running these test both for the entire populations and with random samples meaning that in total, I ran four separate statistical analyses. Starting with task 7 (line 71) I created random samples for both sets of data -- players who have and players who have not had Tommy John surgery. Line 84 is all of my notes from the random sample process and what I am doing to deal with pitchers who have N/A listed as their average pitch speed. I successfully ran two t-tests and was surprised to find drastically different results between the two. My test of the random samples resulted in a p-value of 0.9453, implying that the correlation between fastball velocity and surgery is weak and I should not reject my null hypothesis. Based on this test, I assumed that there is not a significant difference between the fastball velocity of pitchers who have had surgery vs pitchers who have not had surgery. However, when I ran the t-test with the full populations, I observed a p-value of 0.006698, allowing me to reject my null hypothesis and conclude that there is a significant difference in pitch speed from pitchers who have had surgery to those who have not.
 
@@ -12,6 +15,9 @@ Since my hypothesis is that a higher fastball velocity does NOT increase the lik
 ### Task 1: Load the tidyverse and print hypothesis
 ```{r}
 library(tidyverse)
+library(corrplot)
+library(dplyr)
+options(scipen = 999)
 
 null_hypothesis <- "A higher velocity fastball does not make a MLB pitcher more likely to need Tommy John surgery."
 alternate_hypothesis <- "A higher velocity fastball makes a MLB pitcher more likely to need Tommy John surgery."
@@ -73,38 +79,7 @@ ggplot(velo_for_all |>  filter(had_TJ == 0), aes(x = ff_avg_speed)) +
 ```
 I created a histogram for each sample group that I have just to help me better visualize the data. Non-surgery pitchers have a normal, unimodal distribution with almost no outliers. Surgery pitchers have a bimodal distibution with more spread than the other dataset.
 
-### Task 7: Create random samples
-```{r}
-set.seed(8)
-
-tj_pitchers <- velo_for_all |> filter(had_TJ == 1)
-no_tj_pitchers <- velo_for_all |> filter(had_TJ == 0)
-
-# I made my random sample sizes approximately 10% of the full population size
-tj_sample <- tj_pitchers |> sample_n(15)
-no_tj_sample <- no_tj_pitchers |> sample_n(55)
-
-```
-
-Above are my the two random samples I will be using in one of my t-tests to test if there is a significant difference in pitch velocity between pitchers who have had TJ and pitchers who have not. I chose 8 at random for my set.seed and manually add the velocities for all pitchers who showed up as N/A in each sample. I realize now that pitchers were coming up as N/A because I forgot to turn off the setting to only show qualified pitchers when I was taking all of the pitch speed data from online. When I run the same t-test but for the entire populations, I am going to add a line of code that ignores any pitcher without velocity data so that way I don't have to completely re-import all of my data.
-
-### Task 8: Combine random samples
-```{r}
-sampled_data <- bind_rows(tj_sample, no_tj_sample)
-```
-
-I combined my two sets of sampled data so that way I can run the t-test and use the 0 or 1 in the had_tj column to make sure the test is run properly.
-
-### Task 9: T-test with random samples
-I am running a t-test with random samples to give me an analysis of the data that is not solely based on the full populations.
-```{r}
-t_test_sampled <- t.test(ff_avg_speed ~ had_TJ, data = sampled_data)
-
-print(t_test_sampled)
-```
-This t-test produced a p-value of 0.9453, well above the alpha level of 0.05 where I could confidently reject the null hypothesis. As a result, based on this random sample, I can say that there is not a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does not make a pitcher more likely to need surgery.
-
-### Task 10: T-test with full populations
+### T-test with full populations
 I am running the same exact two sample t-test as above, just with the full populations for both datasets.
 ```{r}
 t_test_full <- t.test(ff_avg_speed ~ had_TJ, data = velo_for_all, na.rm = TRUE)
@@ -122,13 +97,6 @@ summary (model)
 ```
 This logistical regression produced a p-value of 0.0090, statistically significant at the 99% confidence level, not just 95%. The ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, the log-odds of surgery increase by 0.123 or approximately 13.1%. 
 
-### Task 12: Logistical regression with random samples
-I am running the same exact logisitical regression as above, just with random samples for both datasets.
-```{r}
-sampled_model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = sampled_data)
-
-summary(sampled_model)
-```
 This logistical regression produced a p-value of 0.943, well above the alpha level of 0.05 where I could confidently reject the null hypothesis. Additionally, the ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, there is actually a slight decrease in a pitchers odds of needing surgery. As a result, based on this random sample, I can say that there is not a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does not make a pitcher more likely to need surgery.
 
 ### Regression Curve
@@ -143,6 +111,7 @@ ggplot(velo_for_all, aes(x = ff_avg_speed, y = predicted_prob)) +
 This regressive curve shows the results of my logistical regression analysis. As pitchers continue to throw faster, their chances of needing Tommy John surgery exponentially increase.
 
 ### Multiple Regression
+I am running a multiple regression to test how other statistics interact with each other and affect the likelihood of surgery.
 ```{r}
 other_stats <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQMyEK1XqNnixMrwEwIOKtOuSLeWxebbkxTPGFK3z3i-6CdGTuqTaWMTejJZZEPTKiuXE_jKAgj_yQW/pub?gid=0&single=true&output=csv")
 ```
@@ -154,12 +123,22 @@ velo_with_stats <- velo_for_all |>
 
 ```{r}
 multi_model <- glm(
-  had_TJ ~ IP + FB_pct + CB_pct + SL_pct,
+  had_TJ ~ ff_avg_speed + IP + FB_pct + SL_pct + vSL,
   data = velo_with_stats,
   family = binomial)
 
 summary(multi_model)
 ```
+
+```{r}
+selected_vars <- velo_with_stats |> select(ff_avg_speed, IP, SL_pct, vSL)
+correlation_matrix <- cor(selected_vars, use = "complete.obs")
+
+print(correlation_matrix)
+corrplot(correlation_matrix, method = "circle")
+```
+
+For this multiple regression, I first started by collecting and importing the data for 10 additional stats into my data. I chose to go with age, innings pitched, ERA, strikeouts per 9 innings, walks per 9 innings, fastball percentage, slider percentage, curveball percentage, average slider velocity and average curveball velocity. All of these stats are performance-based and are impacted by a pitcher's mechanics and gameplan, the two most common factors that may lead to tearing your UCL. I wanted to include average amount of days off between appearances but couldn't find that data publicly available. After importing all of these stats, I decided to only use fastball velocity, innings and the percentages and velocity for sliders because I felt like these were individual and wouldn't be too related to each other. After running the regression, I found that none of the variables indicated a statistically significant individual correlation with surgery. However, the interaction between the new variables was quite interesting. The data indicated a relatively strong correlation between average fastball velocity and average slider velocity, meaning that pitchers who throw faster sliders are likely to throw faster fastballs. Sliders are widely known to require a violent arm motion to successfully throw, leading to a greater risk for arm injury. If a pitcher throws a harder slider, they are likely to throw it at a higher rate since it is tougher for batters to hit, but also putting more tear on their arm. There are most likely zero pitchers who throw their slider harder than their fastball, so pitchers who have a higher average slider velocity will definitely throw harder fastballs too. Since we know the faster a pitcher throws their fastball, their likelihood of surgery increases, throwing a harder slider may also indirectly play a role in injury.
 
 ### Story Pitch
 Headline: Data shows MLB pitchers who throw harder are more likely to need Tommy John surgery

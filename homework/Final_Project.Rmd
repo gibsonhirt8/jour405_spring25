@@ -8,7 +8,6 @@ This week, I ran two types of statistical analysis tests -- a t-test and a logis
 
 I then ran both logistical regression tests for my data and observed similarly split results. The test using full populations resulted in a low p-value and positive ff_avg_speed coefficient. The positive coefficient indicates that as velocity increases, the likelihood of surgery does as well. The low p-value indicates that there is strong evidence to back up this claim. However, the test using the random sample did not come to the same conclusions. There was a negative ff_avg_speed coefficient, meaning that the data actually suggests that higher velocity actually decreases the likelihood of surgery. However, the p-value is extremely high at 0.943, meaning that there is not significant evidence that fastball velocity is associated with surgery within this sample.
 
-
 ### 4/22
 Since my hypothesis is that a higher fastball velocity does NOT increase the likelihood of a pitcher needing Tommy John surgery, I know that I will need to choose statistical analysis tests that take multiple means into account at once. I know that a two-sample t-test is a common way to do this since it can compare two separate samples and whether or not they differ from each other. In my case, a two-sample t-test will test to see if there is a significant difference between pitchers who did and pitchers who did not have surgery. It wouldn't work for me to use an ANOVA test because that test is typically used when there are three or more sample groups and in my case I only have two (TJ vs no TJ). I know the test-t will be a good test but not sure if there are any other statistical analysis's I could use.
 
@@ -129,7 +128,7 @@ multi_model <- glm(
 
 summary(multi_model)
 ```
-
+Had to ignore all players with N/A for any of their stats.
 ```{r}
 selected_vars <- velo_with_stats |> select(ff_avg_speed, IP, SL_pct, vSL)
 correlation_matrix <- cor(selected_vars, use = "complete.obs")

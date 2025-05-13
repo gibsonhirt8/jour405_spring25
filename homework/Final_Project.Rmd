@@ -15,7 +15,6 @@ Since my hypothesis is that a higher fastball velocity does NOT increase the lik
 ```{r}
 library(tidyverse)
 library(corrplot)
-library(dplyr)
 options(scipen = 999)
 
 null_hypothesis <- "A higher velocity fastball does not make a MLB pitcher more likely to need Tommy John surgery."

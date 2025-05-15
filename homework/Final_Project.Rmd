@@ -79,8 +79,9 @@ I created a histogram for each sample group that I have just to help me better v
 
 ```{r}
 data_means <- velo_for_all |> group_by(had_TJ) |> summarize(tj_mean = mean(ff_avg_speed, na.rm = TRUE))
+print(data_means)
 ```
-
+I calculated the means of my two populations to help me visually see what I will be comparing with my t-test.
 
 ### T-test with full populations
 I am running the same exact two sample t-test as above, just with the full populations for both datasets.
@@ -89,7 +90,7 @@ t_test_full <- t.test(ff_avg_speed ~ had_TJ, data = velo_for_all, na.rm = TRUE)
 
 print(t_test_full)
 ```
-This t-test produced a p-value of 0.006, well below the alpha level of 0.05, meaning I can confidently reject the null hypothesis. As a result, based on this test, I can say that there is a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does make a pitcher more likely to need surgery.
+This t-test produced a p-value of 0.007, well below the alpha level of 0.05, meaning I can confidently reject the null hypothesis. As a result, based on this test, I can say that there is a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does make a pitcher more likely to need surgery.
 
 ### Task 11: Logistical regression with full populations
 I am running a logisitical regression with the full populations for both datasets.
@@ -98,7 +99,7 @@ model <- glm(had_TJ ~ ff_avg_speed, family = binomial, data = velo_for_all)
 
 summary (model)
 ```
-This logistical regression produced a p-value of 0.0090, statistically significant at the 99% confidence level, not just 95%. The ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, the log-odds of surgery increase by 0.123 or approximately 13.1%. 
+This logistical regression produced a p-value of 0.009, statistically significant at the 99% confidence level, not just 95%. The ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, the log-odds of surgery increase by 0.123 or approximately 13.1%. 
 
 This logistical regression produced a p-value of 0.943, well above the alpha level of 0.05 where I could confidently reject the null hypothesis. Additionally, the ff_avg_speed coefficient means that for every 1 mph faster a pitcher throws, there is actually a slight decrease in a pitchers odds of needing surgery. As a result, based on this random sample, I can say that there is not a significant difference in the average fastball velocity of pitchers who have had surgery and pitchers who have not. Therefore, throwing harder most likely does not make a pitcher more likely to need surgery.
 
